@@ -1,11 +1,17 @@
 import { lazy } from 'react';
-import { createHashRouter} from 'react-router'
+import { createHashRouter, Navigate} from 'react-router'
 
 import { AdminLayout } from '@/admin/layouts/AdminLayout';
-import { AdminPages } from '@/admin/pages/AdminPages';
+import { AdminPages} from '@/admin/pages/AdminPages';
+import { AdminProductPage } from '@/admin/pages/AdminProductPage';
 import { HeroesLayout } from '@/heroes/layouts/HeroesLayout';
 import { HeroPage } from '@/heroes/pages/hero/HeroPage';
 import { HomePage } from '@/heroes/pages/home/HomePage';
+import { AuthLayout } from '@/auth/layouts/AuthLayout';
+import { LoginPage } from '@/auth/pages/login/LoginPage';
+import { RegisterPage } from '@/auth/pages/register/RegisterPage';
+import { AdminRoute, AuthenticatedRoute, NotAuthenticatedRoute } from '@/components/routes/ProtectedRoute';
+
 //import { SearchPage } from '@/heroes/pages/search/SearchPage';
 
 
@@ -16,7 +22,9 @@ const SearchPage = lazy( () => import('@/heroes/pages/search/SearchPage'));
 export const appRouter = createHashRouter ([
     {
         path: "/",
-        element: <HeroesLayout />,
+        element: (<AuthenticatedRoute>
+                    <HeroesLayout />
+                 </AuthenticatedRoute> ),
         children: [
             {
                 index: true,
@@ -38,14 +46,42 @@ export const appRouter = createHashRouter ([
     },
     {
         path: '/admin',
-        element: <AdminLayout />,
+        element: (<AdminRoute>
+                    <AdminLayout />
+                </AdminRoute>),
         children: [
             {
                 index: true,
                 element: <AdminPages />
-            }
+            },
+            {
+                path: 'product/:id',
+                element: <AdminProductPage />,
+            },
         ]
     },
+      // Auth Routes
+    {
+        path: '/auth',
+        element: (<NotAuthenticatedRoute>
+                    <AuthLayout />
+                </NotAuthenticatedRoute>),
+        children: [
+            {
+                index: true,
+                /* element: <LoginPage />, */
+                element: <Navigate to="/auth/login" />,
+            },
+            {
+                path: 'login',
+                element: <LoginPage />,
+            },
+            {
+                path: 'register',
+                element: <RegisterPage />,
+            },
+        ],
+    }
 
 ]);
 
